@@ -332,4 +332,83 @@ class ComponentParserImplTest {
       assertEquals(input, parser.translate(input));
     }
   }
+
+  @Nested
+  class Escape {
+
+    @Test
+    void escapeNeutralisesAllTranslatorPatterns() {
+      // Each translator inserts its own backslash; no translator re-escapes another's output.
+      // MM.escapeTags leaves the boxed token alone because <&\#AABBCC> is not a known MM tag.
+      String input = "§cRed <&#AABBCC> &#112233 #445566 done";
+      assertEquals("§\\cRed <&\\#AABBCC> &\\#112233 #\\445566 done", parser.escape(input));
+    }
+
+    @Test
+    void escapedOutputIsNotRetranslated() {
+      // Re-running translate over escaped text must be a no-op for each translator.
+      String escaped = parser.escape("§cHello <&#AABBCC> &#112233 #445566 done");
+      assertEquals(escaped, parser.translate(escaped));
+    }
+
+    @Test
+    void miniMessageTagsAreEscapedByMiniMessage() {
+      // <red> is not a translator pattern; MM.escapeTags must escape it (both open and close).
+      assertEquals("\\<red>Hi\\</red>", parser.escape("<red>Hi</red>"));
+    }
+
+    @Test
+    void emptyStringReturnsEmpty() {
+      assertEquals("", parser.escape(""));
+    }
+
+    @Test
+    void plainTextReturnsUnchanged() {
+      assertEquals("Hello, world!", parser.escape("Hello, world!"));
+    }
+  }
+
+  @Nested
+  class Strip {
+
+    @Test
+    void stripRemovesAllTranslatorPatternsAndMmTags() {
+      // §c, <&#AABBCC>, &#112233, and #445566 are each stripped, leaving their surrounding
+      // spaces intact - four single-space gaps between "Red" and "done".
+      assertEquals("Red    done",
+          parser.strip("§cRed <&#AABBCC> &#112233 #445566 done"));
+    }
+
+    @Test
+    void stripRemovesMiniMessageTags() {
+      assertEquals("Hi", parser.strip("<red>Hi</red>"));
+    }
+
+    @Test
+    void stripRemovesMixedLegacyAndMmTags() {
+      assertEquals("Hello world",
+          parser.strip("§c<bold>Hello</bold> §rworld"));
+    }
+
+    @Test
+    void emptyStringReturnsEmpty() {
+      assertEquals("", parser.strip(""));
+    }
+
+    @Test
+    void plainTextReturnsUnchanged() {
+      assertEquals("Hello, world!", parser.strip("Hello, world!"));
+    }
+
+    @Test
+    void stripWithAmpersandLegacyTranslator() {
+      ComponentParserImpl parserAmpersand = new ComponentParserImpl(
+          List.of(MiniMessageTranslators.MOJANG_BOXED_HEX, MiniMessageTranslators.MOJANG_UNBOXED_HEX,
+              MiniMessageTranslators.UNBOXED_HEX, MiniMessageTranslators.LEGACY_CODE_AMPERSAND),
+          MiniMessage.miniMessage()
+      );
+
+      assertEquals("Hello world", parserAmpersand.strip("&cHello &rworld"));
+    }
+  }
 }

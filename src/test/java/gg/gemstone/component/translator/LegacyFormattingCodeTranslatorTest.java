@@ -651,4 +651,130 @@ class LegacyFormattingCodeTranslatorTest {
               "§cI'm red. <green>I'm green. <blue>I'm blue! §fWill I be white?"));
     }
   }
+
+  @Nested
+  class Escape {
+
+    @Test
+    void emptyStringIsReturnedUnchanged() {
+      assertEquals("", translator.escape(""));
+    }
+
+    @Test
+    void plainTextWithNoCodesIsReturnedUnchanged() {
+      assertEquals("Hello, world!", translator.escape("Hello, world!"));
+    }
+
+    @Test
+    void escapesColorCode() {
+      assertEquals("§\\cHello", translator.escape("§cHello"));
+    }
+
+    @Test
+    void escapesFormattingCode() {
+      assertEquals("§\\lBold", translator.escape("§lBold"));
+    }
+
+    @Test
+    void escapesResetCode() {
+      assertEquals("a§\\rb", translator.escape("a§rb"));
+    }
+
+    @Test
+    void preservesOriginalCaseOfCode() {
+      // §C is a valid code (case-insensitive lookup), but the original 'C' must be preserved.
+      assertEquals("§\\CHello", translator.escape("§CHello"));
+    }
+
+    @Test
+    void escapesEveryCodeInString() {
+      assertEquals("§\\cA§\\lB§\\r", translator.escape("§cA§lB§r"));
+    }
+
+    @Test
+    void unknownCodeCharIsLeftAlone() {
+      assertEquals("§zHello", translator.escape("§zHello"));
+    }
+
+    @Test
+    void sectionCharAtEndOfStringIsLeftAlone() {
+      assertEquals("Hello§", translator.escape("Hello§"));
+    }
+
+    @Test
+    void minimessageTagsArePassedThroughVerbatim() {
+      assertEquals("<red>Hi</red>", translator.escape("<red>Hi</red>"));
+    }
+
+    @Test
+    void escapedOutputIsNoLongerTranslated() {
+      String escaped = translator.escape("§cHello");
+      assertEquals("§\\cHello", escaped);
+      assertEquals(escaped, translator.translate(escaped));
+    }
+
+    @Test
+    void doesNotReEscapeAlreadyEscapedCode() {
+      // §\c - the char after § is '\', not a valid legacy code char, so we leave it alone.
+      assertEquals("§\\cHello", translator.escape("§\\cHello"));
+    }
+
+    @Test
+    void customSectionChar() {
+      LegacyFormattingCodeTranslator ampersand = new LegacyFormattingCodeTranslator('&');
+      assertEquals("&\\cHello", ampersand.escape("&cHello"));
+      assertEquals("§cHello", ampersand.escape("§cHello"));
+    }
+  }
+
+  @Nested
+  class Strip {
+
+    @Test
+    void emptyStringIsReturnedUnchanged() {
+      assertEquals("", translator.strip(""));
+    }
+
+    @Test
+    void plainTextWithNoCodesIsReturnedUnchanged() {
+      assertEquals("Hello, world!", translator.strip("Hello, world!"));
+    }
+
+    @Test
+    void stripsSingleColorCode() {
+      assertEquals("Hello", translator.strip("§cHello"));
+    }
+
+    @Test
+    void stripsAllCodesInString() {
+      assertEquals("AB", translator.strip("§cA§lB§r"));
+    }
+
+    @Test
+    void stripsAdjacentCodes() {
+      assertEquals("Hello", translator.strip("§c§l§nHello"));
+    }
+
+    @Test
+    void preservesUnknownCodes() {
+      assertEquals("§zHello", translator.strip("§zHello"));
+    }
+
+    @Test
+    void sectionCharAtEndOfStringIsPreserved() {
+      assertEquals("Hello§", translator.strip("Hello§"));
+    }
+
+    @Test
+    void minimessageTagsArePassedThroughVerbatim() {
+      assertEquals("<red>Hi</red>", translator.strip("<red>Hi</red>"));
+    }
+
+    @Test
+    void customSectionChar() {
+      LegacyFormattingCodeTranslator ampersand = new LegacyFormattingCodeTranslator('&');
+      assertEquals("Hello", ampersand.strip("&cHello"));
+      assertEquals("§cHello", ampersand.strip("§cHello"));
+    }
+  }
 }

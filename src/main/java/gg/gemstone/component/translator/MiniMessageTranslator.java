@@ -35,4 +35,25 @@ public interface MiniMessageTranslator {
    * @return the translated string, or {@code input} unchanged if no recognized patterns were found
    */
   @NotNull String translate(@NotNull String input);
+
+  /**
+   * Escapes every pattern recognized by this translator so it will not be picked up by a
+   * subsequent {@link #translate(String)} call. The convention is to insert a backslash
+   * inside the recognized token.
+   *
+   * <p>Implementations must not re-escape tokens that have already been escaped by another
+   * translator earlier in the chain.
+   *
+   * @param input the string to escape
+   * @return the escaped string, or {@code input} unchanged if no recognized patterns were found
+   */
+  @NotNull String escape(@NotNull String input);
+
+  /**
+   * Removes every pattern recognized by this translator from {@code input}.
+   *
+   * @param input the string to strip
+   * @return the stripped string, or {@code input} unchanged if no recognized patterns were found
+   */
+  @NotNull String strip(@NotNull String input);
 }

@@ -19,6 +19,7 @@ package gg.gemstone.component.translator;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 class MojangUnboxedHexPatternTranslatorTest {
@@ -73,5 +74,80 @@ class MojangUnboxedHexPatternTranslatorTest {
   @Test
   void shouldPreserveSurroundingText() {
     assertEquals("Hello <#FFFFFF> world", translator.translate("Hello &#FFFFFF world"));
+  }
+
+  @Nested
+  class Escape {
+
+    @Test
+    void shouldEscapeSingle() {
+      assertEquals("&\\#FFFFFF", translator.escape("&#FFFFFF"));
+    }
+
+    @Test
+    void shouldEscapeMultiple() {
+      assertEquals("&\\#FFFFFF &\\#000000", translator.escape("&#FFFFFF &#000000"));
+    }
+
+    @Test
+    void shouldNotEscapeBoxedMojang() {
+      assertEquals("<&#FFFFFF>", translator.escape("<&#FFFFFF>"));
+    }
+
+    @Test
+    void shouldNotEscapeAlreadyConverted() {
+      assertEquals("<#FFFFFF>", translator.escape("<#FFFFFF>"));
+    }
+
+    @Test
+    void shouldNotEscapeInvalidHex() {
+      assertEquals("&#GGGGGG", translator.escape("&#GGGGGG"));
+    }
+
+    @Test
+    void shouldNotEscapeSevenDigitHex() {
+      assertEquals("&#FFFFFFF", translator.escape("&#FFFFFFF"));
+    }
+
+    @Test
+    void escapedOutputIsNoLongerTranslated() {
+      String escaped = translator.escape("&#AABBCC");
+      assertEquals("&\\#AABBCC", escaped);
+      assertEquals(escaped, translator.translate(escaped));
+    }
+  }
+
+  @Nested
+  class Strip {
+
+    @Test
+    void shouldStripSingle() {
+      assertEquals("", translator.strip("&#FFFFFF"));
+    }
+
+    @Test
+    void shouldStripMultiple() {
+      assertEquals(" ", translator.strip("&#FFFFFF &#000000"));
+    }
+
+    @Test
+    void shouldNotStripBoxedMojang() {
+      assertEquals("<&#FFFFFF>", translator.strip("<&#FFFFFF>"));
+    }
+
+    @Test
+    void shouldNotStripAlreadyConverted() {
+      assertEquals("<#FFFFFF>", translator.strip("<#FFFFFF>"));
+    }
+
+    @Test
+    void shouldNotStripInvalidHex() {
+      assertEquals("&#GGGGGG", translator.strip("&#GGGGGG"));
+    }
+
+    @Test
+    void shouldPreserveSurroundingText() {
+      assertEquals("Hello  world", translator.strip("Hello &#FFFFFF world"));
+    }
   }
 }

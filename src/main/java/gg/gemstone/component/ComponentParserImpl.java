@@ -46,7 +46,33 @@ class ComponentParserImpl implements ComponentParser {
 
   @Override
   public @NotNull Component parse(@NotNull String input) {
+    requireNonNull(input, "input");
+
     return parse(input, MiniMessage::deserialize);
+  }
+
+  @Override
+  public @NotNull String escape(@NotNull String input) {
+    requireNonNull(input, "input");
+
+    String result = input;
+    for (MiniMessageTranslator translator : translators) {
+      result = translator.escape(result);
+    }
+
+    return miniMessage.escapeTags(result);
+  }
+
+  @Override
+  public @NotNull String strip(@NotNull String input) {
+    requireNonNull(input, "input");
+
+    String result = input;
+    for (MiniMessageTranslator translator : translators) {
+      result = translator.strip(result);
+    }
+
+    return miniMessage.stripTags(result);
   }
 
   @Override
@@ -73,8 +99,6 @@ class ComponentParserImpl implements ComponentParser {
 
   @VisibleForTesting
   @NotNull String translate(@NotNull String input) {
-    requireNonNull(input, "input");
-
     String result = input;
     for (MiniMessageTranslator translator : translators) {
       result = translator.translate(result);

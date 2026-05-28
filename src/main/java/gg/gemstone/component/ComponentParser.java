@@ -79,6 +79,24 @@ public interface ComponentParser {
   @NotNull Component parse(@NotNull String input);
 
   /**
+   * Escapes {@code input} so that no token recognized by this parser's translator chain or by
+   * {@link MiniMessage} will be interpreted on a subsequent {@link #parse(String)} call.
+   *
+   * @param input the raw input string
+   * @return the escaped string
+   */
+  @NotNull String escape(@NotNull String input);
+
+  /**
+   * Removes every token recognized by this parser's translator chain and by {@link MiniMessage}
+   * from {@code input}, leaving only plain text.
+   *
+   * @param input the raw input string
+   * @return the stripped string
+   */
+  @NotNull String strip(@NotNull String input);
+
+  /**
    * Returns a new {@link Builder} pre-populated with this parser's translator chain
    * and {@link MiniMessage} instance, allowing a modified copy to be built without
    * starting from scratch.

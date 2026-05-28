@@ -41,6 +41,12 @@ class MojangUnboxedHexPatternTranslator implements MiniMessageTranslator {
   private static final String BOXED_HEX_REPLACEMENT = "<#$1>";
 
   /**
+   * Escape replacement: {@code &#RRGGBB} becomes {@code &\#RRGGBB}, neutralising the pattern
+   * for this translator.
+   */
+  private static final String UNBOXED_HEX_ESCAPE_REPLACEMENT = "&\\\\#$1";
+
+  /**
    * Use {@link MiniMessageTranslators#MOJANG_UNBOXED_HEX}.
    */
   MojangUnboxedHexPatternTranslator() {
@@ -49,5 +55,15 @@ class MojangUnboxedHexPatternTranslator implements MiniMessageTranslator {
   @Override
   public @NotNull String translate(final @NotNull String input) {
     return UNBOXED_MOJANG_PATTERN.matcher(input).replaceAll(BOXED_HEX_REPLACEMENT);
+  }
+
+  @Override
+  public @NotNull String escape(final @NotNull String input) {
+    return UNBOXED_MOJANG_PATTERN.matcher(input).replaceAll(UNBOXED_HEX_ESCAPE_REPLACEMENT);
+  }
+
+  @Override
+  public @NotNull String strip(final @NotNull String input) {
+    return UNBOXED_MOJANG_PATTERN.matcher(input).replaceAll("");
   }
 }
