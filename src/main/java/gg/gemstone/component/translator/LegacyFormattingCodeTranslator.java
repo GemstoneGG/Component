@@ -95,6 +95,46 @@ class LegacyFormattingCodeTranslator implements MiniMessageTranslator {
   }
 
   @Override
+  public @NotNull String escape(@NotNull String input) {
+    return rewriteLegacyCodes(input, true);
+  }
+
+  @Override
+  public @NotNull String strip(@NotNull String input) {
+    return rewriteLegacyCodes(input, false);
+  }
+
+  private String rewriteLegacyCodes(String input, boolean escape) {
+    if (input.isEmpty()) {
+      return input;
+    }
+
+    StringBuilder output = new StringBuilder(input.length());
+
+    int i = 0;
+    while (i < input.length()) {
+      char c = input.charAt(i);
+
+      if (c == sectionChar && i + 1 < input.length()) {
+        char code = Character.toLowerCase(input.charAt(i + 1));
+
+        if (code == RESET_CODE || COLOR_CODES.containsKey(code) || FORMAT_CODES.containsKey(code)) {
+          if (escape) {
+            output.append(sectionChar).append('\\').append(input.charAt(i + 1));
+          }
+          i += 2;
+          continue;
+        }
+      }
+
+      output.append(c);
+      i++;
+    }
+
+    return output.toString();
+  }
+
+  @Override
   public @NotNull String translate(@NotNull String input) {
     if (input.isEmpty()) {
       return input;

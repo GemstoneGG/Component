@@ -19,6 +19,7 @@ package gg.gemstone.component.translator;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 class UnboxedHexPatternTranslatorTest {
@@ -74,5 +75,88 @@ class UnboxedHexPatternTranslatorTest {
   void shouldNotCorruptMojangBoxedAfterConversion() {
     // Simulates output from MojangBoxedHexPatternTranslator being passed in
     assertEquals("<#FFFFFF>", translator.translate("<#FFFFFF>"));
+  }
+
+  @Nested
+  class Escape {
+
+    @Test
+    void shouldEscapeSingle() {
+      assertEquals("#\\FFFFFF", translator.escape("#FFFFFF"));
+    }
+
+    @Test
+    void shouldEscapeMultiple() {
+      assertEquals("#\\FFFFFF #\\000000", translator.escape("#FFFFFF #000000"));
+    }
+
+    @Test
+    void shouldNotEscapeAlreadyConverted() {
+      assertEquals("<#FFFFFF>", translator.escape("<#FFFFFF>"));
+    }
+
+    @Test
+    void shouldNotEscapeMojangUnboxed() {
+      assertEquals("&#FFFFFF", translator.escape("&#FFFFFF"));
+    }
+
+    @Test
+    void shouldNotEscapeInvalidHex() {
+      assertEquals("#GGGGGG", translator.escape("#GGGGGG"));
+    }
+
+    @Test
+    void shouldNotEscapeSevenDigitHex() {
+      assertEquals("#FFFFFFF", translator.escape("#FFFFFFF"));
+    }
+
+    @Test
+    void shouldNotReEscapeBackslashEscapedHex() {
+      // Simulates output of MojangBoxed/MojangUnboxed escape (e.g. "&\#FFFFFF").
+      // The leading backslash must keep us from re-escaping the inner #FFFFFF.
+      assertEquals("&\\#FFFFFF", translator.escape("&\\#FFFFFF"));
+      assertEquals("<&\\#FFFFFF>", translator.escape("<&\\#FFFFFF>"));
+    }
+
+    @Test
+    void escapedOutputIsNoLongerTranslated() {
+      String escaped = translator.escape("#AABBCC");
+      assertEquals("#\\AABBCC", escaped);
+      assertEquals(escaped, translator.translate(escaped));
+    }
+  }
+
+  @Nested
+  class Strip {
+
+    @Test
+    void shouldStripSingle() {
+      assertEquals("", translator.strip("#FFFFFF"));
+    }
+
+    @Test
+    void shouldStripMultiple() {
+      assertEquals(" ", translator.strip("#FFFFFF #000000"));
+    }
+
+    @Test
+    void shouldNotStripAlreadyConverted() {
+      assertEquals("<#FFFFFF>", translator.strip("<#FFFFFF>"));
+    }
+
+    @Test
+    void shouldNotStripMojangUnboxed() {
+      assertEquals("&#FFFFFF", translator.strip("&#FFFFFF"));
+    }
+
+    @Test
+    void shouldNotStripInvalidHex() {
+      assertEquals("#GGGGGG", translator.strip("#GGGGGG"));
+    }
+
+    @Test
+    void shouldPreserveSurroundingText() {
+      assertEquals("Hello  world", translator.strip("Hello #FFFFFF world"));
+    }
   }
 }
