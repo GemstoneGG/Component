@@ -24,11 +24,8 @@ import gg.gemstone.component.translator.MiniMessageTranslators;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import net.kyori.adventure.pointer.Pointered;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
-import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
-import net.kyori.adventure.text.minimessage.tree.Node;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.VisibleForTesting;
 
@@ -46,61 +43,6 @@ class ComponentParserImpl implements ComponentParser {
   @Override
   public @NotNull Component parse(@NotNull String input) {
     return miniMessage.deserialize(translate(input));
-  }
-
-  @Override
-  public @NotNull Component parse(@NotNull String input, @NotNull Pointered target) {
-    return miniMessage.deserialize(translate(input), target);
-  }
-
-  @Override
-  public @NotNull Component parse(@NotNull String input, @NotNull TagResolver tagResolver) {
-    return miniMessage.deserialize(translate(input), tagResolver);
-  }
-
-  @Override
-  public @NotNull Component parse(@NotNull String input, @NotNull Pointered target, @NotNull TagResolver tagResolver) {
-    return miniMessage.deserialize(translate(input), target, tagResolver);
-  }
-
-  @Override
-  public @NotNull Component parse(@NotNull String input, TagResolver... tagResolvers) {
-    return miniMessage.deserialize(translate(input), tagResolvers);
-  }
-
-  @Override
-  public @NotNull Component parse(@NotNull String input, @NotNull Pointered target, TagResolver... tagResolvers) {
-    return miniMessage.deserialize(translate(input), target, tagResolvers);
-  }
-
-  @Override
-  public Node.@NotNull Root parseToTree(@NotNull String input) {
-    return miniMessage.deserializeToTree(translate(input));
-  }
-
-  @Override
-  public Node.@NotNull Root parseToTree(@NotNull String input, @NotNull Pointered target) {
-    return miniMessage.deserializeToTree(translate(input), target);
-  }
-
-  @Override
-  public Node.@NotNull Root parseToTree(@NotNull String input, @NotNull TagResolver tagResolver) {
-    return miniMessage.deserializeToTree(translate(input), tagResolver);
-  }
-
-  @Override
-  public Node.@NotNull Root parseToTree(@NotNull String input, @NotNull Pointered target, @NotNull TagResolver tagResolver) {
-    return miniMessage.deserializeToTree(translate(input), target, tagResolver);
-  }
-
-  @Override
-  public Node.@NotNull Root parseToTree(@NotNull String input, TagResolver... tagResolvers) {
-    return miniMessage.deserializeToTree(translate(input), tagResolvers);
-  }
-
-  @Override
-  public Node.@NotNull Root parseToTree(@NotNull String input, @NotNull Pointered target, TagResolver... tagResolvers) {
-    return miniMessage.deserializeToTree(translate(input), target, tagResolvers);
   }
 
   @Override
