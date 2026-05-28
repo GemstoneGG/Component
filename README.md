@@ -18,7 +18,7 @@ Import this library from [repo.velocityctd.com](https://repo.velocityctd.com/#/)
 <dependency>
   <groupId>gg.gemstone</groupId>
   <artifactId>component</artifactId>
-  <version>1.0.0</version>
+  <version>1.0.1</version>
 </dependency>
 ```
 
@@ -29,7 +29,7 @@ maven {
   url = uri("https://repo.velocityctd.com/releases")
 }
 
-implementation("gg.gemstone:component:1.0.0")
+implementation("gg.gemstone:component:1.0.1")
 ```
 
 ## Supported input formats
@@ -58,12 +58,26 @@ ComponentParser parserAmpersand = ComponentParser.componentParserAmpersand();
 Component component = parser.parse("§cHello <bold>World</bold>");
 ```
 
-`parse()` mirrors the full `MiniMessage.deserialize()` API, including overloads for `Pointered` and `TagResolver`:
+## Escaping and stripping
+
+Use `escape()` to quote user input so that no legacy code, hex syntax, or MiniMessage tag is interpreted on a subsequent `parse()` call. Use `strip()` to drop every recognized token and keep only the plain text. Both methods honor the parser's translator chain, so they cover exactly the formats the parser knows about.
 
 ```java
-Component component = parser.parse(input, tagResolver);
-Component component = parser.parse(input, viewer, tagResolver);
-Node.Root tree      = parser.parseToTree(input);
+String safe = parser.escape("§cHello <bold>World</bold>");
+// safe -> "\§cHello \<bold>World\</bold>"
+parser.parse(safe); // renders the literal text, no formatting applied
+
+String plain = parser.strip("§cHello <bold>World</bold>");
+// plain -> "Hello World"
+```
+
+## MiniMessage adapter
+
+If you have code that expects a `MiniMessage` instance, call `asMiniMessage()` to drop this parser in without changing the call sites:
+
+```java
+MiniMessage mm = parser.asMiniMessage();
+Component component = mm.deserialize("§cHello <bold>World</bold>");
 ```
 
 ## Custom parsers
