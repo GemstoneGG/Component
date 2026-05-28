@@ -26,7 +26,7 @@ import org.jetbrains.annotations.NotNull;
  * <p>The pattern {@code <&#RRGGBB>} is replaced with {@code <#RRGGBB>}. Only exactly
  * six hex digits are matched; seven-or-more digit sequences are left untouched.
  */
-public class MojangBoxedHexPatternTranslator implements MiniMessageTranslator {
+class MojangBoxedHexPatternTranslator implements MiniMessageTranslator {
 
   /**
    * Matches Mojang-style boxed hex codes (e.g. {@code <&#FFFFFF>}).

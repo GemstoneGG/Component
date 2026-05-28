@@ -247,7 +247,12 @@ class LegacyFormattingCodeTranslator implements MiniMessageTranslator {
   }
 
   private int flushInnerLegacyTags(Deque<String> legacyStack, StringBuilder output, int innerCount) {
-    for (int j = 0; j < innerCount && !legacyStack.isEmpty(); j++) {
+    for (int j = 0; j < innerCount; j++) {
+      if (legacyStack.isEmpty()) {
+        throw new IllegalStateException(
+            "legacy stack underflow while flushing inner tags: expected at least "
+                + innerCount + " entries, ran out after " + j);
+      }
       output.append("</").append(legacyStack.pop()).append('>');
     }
     return 0;

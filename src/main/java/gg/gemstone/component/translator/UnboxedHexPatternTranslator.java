@@ -29,7 +29,7 @@ import org.jetbrains.annotations.NotNull;
  * {@link MojangUnboxedHexPatternTranslator} ({@code &#RRGGBB}). Only exactly six hex digits are
  * matched; seven-or-more digit sequences are left untouched.
  */
-public class UnboxedHexPatternTranslator implements MiniMessageTranslator {
+class UnboxedHexPatternTranslator implements MiniMessageTranslator {
 
   /**
    * Matches unboxed hex codes (e.g. {@code #FFFFFF}), excluding those already boxed in

@@ -67,7 +67,7 @@ public interface ComponentParser {
    * Returns a parser that translates Mojang boxed/unboxed hex colors and
    * {@code &}-prefixed legacy formatting codes.
    *
-   * @return a ampersand parser
+   * @return an ampersand parser
    */
   static ComponentParser componentParserAmpersand() {
     return ComponentParserImpl.Instances.COMPONENT_PARSER_AMPERSAND;

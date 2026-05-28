@@ -163,12 +163,13 @@ class ComponentParserImpl implements ComponentParser {
 
     @Override
     public ComponentParser.Builder addTranslator(MiniMessageTranslator translator) {
-      this.translators.add(translator);
+      this.translators.add(requireNonNull(translator, "translator"));
       return this;
     }
 
     @Override
     public ComponentParser.Builder withTranslators(MiniMessageTranslator... translators) {
+      requireNonNull(translators, "translators");
       this.translators.clear();
       this.translators.addAll(List.of(translators));
       return this;
@@ -176,7 +177,7 @@ class ComponentParserImpl implements ComponentParser {
 
     @Override
     public ComponentParser.Builder withMiniMessage(MiniMessage miniMessage) {
-      this.miniMessage = miniMessage;
+      this.miniMessage = requireNonNull(miniMessage, "miniMessage");
       return this;
     }
 

@@ -28,7 +28,7 @@ import org.jetbrains.annotations.NotNull;
  * (those are handled by {@link MojangBoxedHexPatternTranslator}). Only exactly six hex digits
  * are matched; seven-or-more digit sequences are left untouched.
  */
-public class MojangUnboxedHexPatternTranslator implements MiniMessageTranslator {
+class MojangUnboxedHexPatternTranslator implements MiniMessageTranslator {
 
   /**
    * Matches Mojang-style unboxed hex codes (e.g. {@code &#FFFFFF}).

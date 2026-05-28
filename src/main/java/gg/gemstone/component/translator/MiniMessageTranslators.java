@@ -17,8 +17,6 @@
 
 package gg.gemstone.component.translator;
 
-import org.jetbrains.annotations.NotNull;
-
 /**
  * Pre-built {@link MiniMessageTranslator} implementations available for use in a
  * {@link gg.gemstone.component.ComponentParser} translator chain.
@@ -29,42 +27,34 @@ import org.jetbrains.annotations.NotNull;
  * {@link gg.gemstone.component.ComponentParser.Builder#withTranslators} to configure which
  * conversions are applied, and in what order.
  */
-public enum MiniMessageTranslators implements MiniMessageTranslator {
+public final class MiniMessageTranslators {
 
   /**
    * Translates {@code &}-prefixed legacy color and formatting codes into MiniMessage tags.
    */
-  LEGACY_CODE_AMPERSAND(new LegacyFormattingCodeTranslator('&')),
+  public static final MiniMessageTranslator LEGACY_CODE_AMPERSAND = new LegacyFormattingCodeTranslator('&');
 
   /**
    * Translates {@code §}-prefixed legacy color and formatting codes into MiniMessage tags.
    */
-  LEGACY_CODE_SECTION(new LegacyFormattingCodeTranslator('§')),
+  public static final MiniMessageTranslator LEGACY_CODE_SECTION = new LegacyFormattingCodeTranslator('§');
 
   /**
    * Translates Mojang-style <em>boxed</em> hex colors ({@code <&#RRGGBB>}) into MiniMessage hex tags ({@code <#RRGGBB>}).
    */
-  MOJANG_BOXED_HEX(new MojangBoxedHexPatternTranslator()),
+  public static final MiniMessageTranslator MOJANG_BOXED_HEX = new MojangBoxedHexPatternTranslator();
 
   /**
    * Translates Mojang-style <em>unboxed</em> hex colors ({@code &#RRGGBB}) into MiniMessage hex tags ({@code <#RRGGBB>}).
    */
-  MOJANG_UNBOXED_HEX(new MojangUnboxedHexPatternTranslator()),
+  public static final MiniMessageTranslator MOJANG_UNBOXED_HEX = new MojangUnboxedHexPatternTranslator();
 
   /**
    * Translates bare hex colors ({@code #RRGGBB}) into MiniMessage hex tags ({@code <#RRGGBB>}).
    */
-  UNBOXED_HEX(new UnboxedHexPatternTranslator());
+  public static final MiniMessageTranslator UNBOXED_HEX = new UnboxedHexPatternTranslator();
 
-  private final MiniMessageTranslator delegate;
-
-  MiniMessageTranslators(MiniMessageTranslator delegate) {
-    this.delegate = delegate;
-  }
-
-  @Override
-  public @NotNull String translate(@NotNull String input) {
-    return delegate.translate(input);
+  private MiniMessageTranslators() {
   }
 
   /**
