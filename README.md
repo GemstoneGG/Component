@@ -4,6 +4,34 @@ A small Adventure library that bridges legacy Minecraft formatting codes and non
 
 Minecraft plugins often receive player-facing strings that mix MiniMessage tags with older `§`/`&` color codes or Mojang-style hex colors (`&#RRGGBB`, `<&#RRGGBB>`). Adventure's built-in MiniMessage parser does not understand these formats. This library normalizes them into standard MiniMessage before deserialization, so you get a proper Adventure `Component` without preprocessing strings yourself.
 
+## Maven/Gradle
+Import this library from [repo.velocityctd.com](https://repo.velocityctd.com/#/).
+
+**Maven**
+```xml
+<repository>
+  <id>velocityctd-releases</id>
+  <name>Velocity-CTD Repository</name>
+  <url>https://repo.velocityctd.com/releases</url>
+</repository>
+
+<dependency>
+  <groupId>gg.gemstone</groupId>
+  <artifactId>component</artifactId>
+  <version>1.0.0</version>
+</dependency>
+```
+
+**Gradle (kotlin)**
+```kotlin
+maven {
+  name = "velocityctdReleases"
+  url = uri("https://repo.velocityctd.com/releases")
+}
+
+implementation("gg.gemstone:component:1.0.0")
+```
+
 ## Supported input formats
 
 | Format | Example | Normalized to |
