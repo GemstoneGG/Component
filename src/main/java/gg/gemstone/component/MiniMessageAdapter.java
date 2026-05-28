@@ -49,6 +49,11 @@ final class MiniMessageAdapter implements MiniMessage {
   }
 
   @Override
+  public @NotNull Component deserialize(@NotNull String input) {
+    return parser.parse(input);
+  }
+
+  @Override
   public @NotNull Component deserialize(@NotNull String input, @NotNull Pointered target) {
     return parser.parse(input, target);
   }
@@ -94,12 +99,11 @@ final class MiniMessageAdapter implements MiniMessage {
   }
 
   @Override
-  public @NotNull Component deserialize(@NotNull String input) {
-    return parser.parse(input);
-  }
-
-  @Override
   public @NotNull String serialize(@NotNull Component component) {
+    // Serializing can be done straight with the `miniMessage` reference. It does not make
+    // sense to inject other ways of formatting here; the ComponentParser natively supports
+    // the MiniMessage format, so anything serialized here will be able to be deserialized by
+    // any ComponentParser.
     return miniMessage.serialize(component);
   }
 }
