@@ -64,7 +64,7 @@ Use `escape()` to quote user input so that no legacy code, hex syntax, or MiniMe
 
 ```java
 String safe = parser.escape("§cHello <bold>World</bold>");
-// safe -> "\§cHello \<bold>World\</bold>"
+// safe -> "§\cHello \<bold>World\</bold>"
 parser.parse(safe); // renders the literal text, no formatting applied
 
 String plain = parser.strip("§cHello <bold>World</bold>");
@@ -78,6 +78,12 @@ If you have code that expects a `MiniMessage` instance, call `asMiniMessage()` t
 ```java
 MiniMessage mm = parser.asMiniMessage();
 Component component = mm.deserialize("§cHello <bold>World</bold>");
+
+// MiniMessage's MiniMessageTranslationStore expects a MiniMessage:
+MiniMessageTranslationStore translationRegistry =
+    MiniMessageTranslationStore.create(
+        this.translationRegistryKey,
+        parser.asMiniMessage());
 ```
 
 ## Custom parsers
