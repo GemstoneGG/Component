@@ -120,6 +120,11 @@ class ComponentParserImpl implements ComponentParser {
     return new Builder(translators, miniMessage);
   }
 
+  @Override
+  public MiniMessage asMiniMessage() {
+    return new MiniMessageAdapter(this, miniMessage);
+  }
+
   @VisibleForTesting
   @NotNull String translate(@NotNull String input) {
     requireNonNull(input, "input");
