@@ -24,8 +24,12 @@ import gg.gemstone.component.translator.MiniMessageTranslators;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.function.BiFunction;
+import net.kyori.adventure.pointer.Pointered;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
+import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
+import net.kyori.adventure.text.minimessage.tree.Node;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.VisibleForTesting;
 
@@ -42,33 +46,17 @@ class ComponentParserImpl implements ComponentParser {
 
   @Override
   public @NotNull Component parse(@NotNull String input) {
-    requireNonNull(input, "input");
-
-    return miniMessage.deserialize(translate(input));
+    return parse(input, MiniMessage::deserialize);
   }
 
   @Override
   public @NotNull String escape(@NotNull String input) {
-    requireNonNull(input, "input");
-
-    String result = input;
-    for (MiniMessageTranslator translator : translators) {
-      result = translator.escape(result);
-    }
-
-    return miniMessage.escapeTags(result);
+    return escape(input, MiniMessage::escapeTags);
   }
 
   @Override
   public @NotNull String strip(@NotNull String input) {
-    requireNonNull(input, "input");
-
-    String result = input;
-    for (MiniMessageTranslator translator : translators) {
-      result = translator.strip(result);
-    }
-
-    return miniMessage.stripTags(result);
+    return strip(input, MiniMessage::stripTags);
   }
 
   @Override
@@ -88,6 +76,11 @@ class ComponentParserImpl implements ComponentParser {
     return new Builder(translators, miniMessage);
   }
 
+  @Override
+  public MiniMessage asMiniMessage() {
+    return new MiniMessageAdapter();
+  }
+
   @VisibleForTesting
   @NotNull String translate(@NotNull String input) {
     String result = input;
@@ -96,6 +89,35 @@ class ComponentParserImpl implements ComponentParser {
     }
 
     return result;
+  }
+
+  private <R> @NotNull R parse(@NotNull String input, BiFunction<MiniMessage, String, R> miniMessageFunction) {
+    requireNonNull(input, "input");
+
+    String translated = translate(input);
+    return miniMessageFunction.apply(miniMessage, translated);
+  }
+
+  private <R> @NotNull R escape(@NotNull String input, BiFunction<MiniMessage, String, R> miniMessageFunction) {
+    requireNonNull(input, "input");
+
+    String result = input;
+    for (MiniMessageTranslator translator : translators) {
+      result = translator.escape(result);
+    }
+
+    return miniMessageFunction.apply(miniMessage, result);
+  }
+
+  private <R> @NotNull R strip(@NotNull String input, BiFunction<MiniMessage, String, R> miniMessageFunction) {
+    requireNonNull(input, "input");
+
+    String result = input;
+    for (MiniMessageTranslator translator : translators) {
+      result = translator.strip(result);
+    }
+
+    return miniMessageFunction.apply(miniMessage, result);
   }
 
   static class Instances {
@@ -150,6 +172,91 @@ class ComponentParserImpl implements ComponentParser {
     @Override
     public ComponentParser build() {
       return new ComponentParserImpl(new ArrayList<>(translators), miniMessage);
+    }
+  }
+
+  /**
+   * Adapts this {@link ComponentParser} to the {@link MiniMessage} interface.
+   */
+  class MiniMessageAdapter implements MiniMessage {
+
+    @Override
+    public @NotNull String escapeTags(@NotNull String input) {
+      return escape(input, MiniMessage::escapeTags);
+    }
+
+    @Override
+    public @NotNull String escapeTags(@NotNull String input, @NotNull TagResolver tagResolver) {
+      return escape(input, (mm, s) -> mm.escapeTags(s, tagResolver));
+    }
+
+    @Override
+    public @NotNull String stripTags(@NotNull String input) {
+      return strip(input, MiniMessage::stripTags);
+    }
+
+    @Override
+    public @NotNull String stripTags(@NotNull String input, @NotNull TagResolver tagResolver) {
+      return strip(input, (mm, s) -> mm.stripTags(s, tagResolver));
+    }
+
+    @Override
+    public @NotNull Component deserialize(@NotNull String input) {
+      return parse(input, MiniMessage::deserialize);
+    }
+
+    @Override
+    public @NotNull Component deserialize(@NotNull String input, @NotNull Pointered target) {
+      return parse(input, (mm, s) -> mm.deserialize(s, target));
+    }
+
+    @Override
+    public @NotNull Component deserialize(@NotNull String input, @NotNull TagResolver tagResolver) {
+      return parse(input, (mm, s) -> mm.deserialize(s, tagResolver));
+    }
+
+    @Override
+    public @NotNull Component deserialize(@NotNull String input, @NotNull Pointered target, @NotNull TagResolver tagResolver) {
+      return parse(input, (mm, s) -> mm.deserialize(s, target, tagResolver));
+    }
+
+    @Override
+    public Node.@NotNull Root deserializeToTree(@NotNull String input) {
+      return parse(input, MiniMessage::deserializeToTree);
+    }
+
+    @Override
+    public Node.@NotNull Root deserializeToTree(@NotNull String input, @NotNull Pointered target) {
+      return parse(input, (mm, s) -> mm.deserializeToTree(s, target));
+    }
+
+    @Override
+    public Node.@NotNull Root deserializeToTree(@NotNull String input, @NotNull TagResolver tagResolver) {
+      return parse(input, (mm, s) -> mm.deserializeToTree(s, tagResolver));
+    }
+
+    @Override
+    public Node.@NotNull Root deserializeToTree(@NotNull String input, @NotNull Pointered target, @NotNull TagResolver tagResolver) {
+      return parse(input, (mm, s) -> mm.deserializeToTree(s, target, tagResolver));
+    }
+
+    @Override
+    public boolean strict() {
+      return miniMessage.strict();
+    }
+
+    @Override
+    public @NotNull TagResolver tags() {
+      return miniMessage.tags();
+    }
+
+    @Override
+    public @NotNull String serialize(@NotNull Component component) {
+      // Serializing can be done straight with the `miniMessage` reference. It does not make
+      // sense to inject other ways of formatting here; the ComponentParser natively supports
+      // the MiniMessage format, so anything serialized here will be able to be deserialized by
+      // any ComponentParser.
+      return miniMessage.serialize(component);
     }
   }
 }

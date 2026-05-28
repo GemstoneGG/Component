@@ -106,6 +106,15 @@ public interface ComponentParser {
   Builder toBuilder();
 
   /**
+   * Returns an adapter that lets you use the more complex parsing features of this parser
+   * through the {@link MiniMessage} interface. Useful for dropping in this parser in an
+   * environment that currently expects MiniMessage.
+   *
+   * @return an adapter that exposes this parser's functionality through the MiniMessage interface
+   */
+  MiniMessage asMiniMessage();
+
+  /**
    * Builds a {@link ComponentParser} with a custom translator chain and
    * MiniMessage instance.
    *
