@@ -46,33 +46,17 @@ class ComponentParserImpl implements ComponentParser {
 
   @Override
   public @NotNull Component parse(@NotNull String input) {
-    requireNonNull(input, "input");
-
     return parse(input, MiniMessage::deserialize);
   }
 
   @Override
   public @NotNull String escape(@NotNull String input) {
-    requireNonNull(input, "input");
-
-    String result = input;
-    for (MiniMessageTranslator translator : translators) {
-      result = translator.escape(result);
-    }
-
-    return miniMessage.escapeTags(result);
+    return escape(input, MiniMessage::escapeTags);
   }
 
   @Override
   public @NotNull String strip(@NotNull String input) {
-    requireNonNull(input, "input");
-
-    String result = input;
-    for (MiniMessageTranslator translator : translators) {
-      result = translator.strip(result);
-    }
-
-    return miniMessage.stripTags(result);
+    return strip(input, MiniMessage::stripTags);
   }
 
   @Override
@@ -108,8 +92,32 @@ class ComponentParserImpl implements ComponentParser {
   }
 
   private <R> @NotNull R parse(@NotNull String input, BiFunction<MiniMessage, String, R> miniMessageFunction) {
+    requireNonNull(input, "input");
+
     String translated = translate(input);
     return miniMessageFunction.apply(miniMessage, translated);
+  }
+
+  private <R> @NotNull R escape(@NotNull String input, BiFunction<MiniMessage, String, R> miniMessageFunction) {
+    requireNonNull(input, "input");
+
+    String result = input;
+    for (MiniMessageTranslator translator : translators) {
+      result = translator.escape(result);
+    }
+
+    return miniMessageFunction.apply(miniMessage, result);
+  }
+
+  private <R> @NotNull R strip(@NotNull String input, BiFunction<MiniMessage, String, R> miniMessageFunction) {
+    requireNonNull(input, "input");
+
+    String result = input;
+    for (MiniMessageTranslator translator : translators) {
+      result = translator.strip(result);
+    }
+
+    return miniMessageFunction.apply(miniMessage, result);
   }
 
   static class Instances {
@@ -174,22 +182,22 @@ class ComponentParserImpl implements ComponentParser {
 
     @Override
     public @NotNull String escapeTags(@NotNull String input) {
-      throw new UnsupportedOperationException();
+      return escape(input, MiniMessage::escapeTags);
     }
 
     @Override
     public @NotNull String escapeTags(@NotNull String input, @NotNull TagResolver tagResolver) {
-      throw new UnsupportedOperationException();
+      return escape(input, (mm, s) -> mm.escapeTags(s, tagResolver));
     }
 
     @Override
     public @NotNull String stripTags(@NotNull String input) {
-      throw new UnsupportedOperationException();
+      return strip(input, MiniMessage::stripTags);
     }
 
     @Override
     public @NotNull String stripTags(@NotNull String input, @NotNull TagResolver tagResolver) {
-      throw new UnsupportedOperationException();
+      return strip(input, (mm, s) -> mm.stripTags(s, tagResolver));
     }
 
     @Override
