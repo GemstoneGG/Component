@@ -19,11 +19,8 @@ package gg.gemstone.component;
 
 import gg.gemstone.component.translator.MiniMessageTranslator;
 import gg.gemstone.component.translator.MiniMessageTranslators;
-import net.kyori.adventure.pointer.Pointered;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
-import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
-import net.kyori.adventure.text.minimessage.tree.Node;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -74,126 +71,12 @@ public interface ComponentParser {
   }
 
   /**
-   * Translates {@code input} and deserializes it into a {@link Component}.
+   * Translates and parses {@code input} and deserializes it into a {@link Component}.
    *
    * @param input the raw input string
    * @return the parsed component
    */
   @NotNull Component parse(@NotNull String input);
-
-  /**
-   * Translates {@code input} and deserializes it into a {@link Component},
-   * resolving tags against the given {@code target}.
-   *
-   * @param input  the raw input string
-   * @param target the pointered context used for tag resolution
-   * @return the parsed component
-   */
-  @NotNull Component parse(@NotNull String input, @NotNull Pointered target);
-
-  /**
-   * Translates {@code input} and deserializes it into a {@link Component},
-   * applying the given {@code tagResolver}.
-   *
-   * @param input       the raw input string
-   * @param tagResolver additional tag resolver
-   * @return the parsed component
-   */
-  @NotNull Component parse(@NotNull String input, @NotNull TagResolver tagResolver);
-
-  /**
-   * Translates {@code input} and deserializes it into a {@link Component},
-   * resolving tags against {@code target} and applying {@code tagResolver}.
-   *
-   * @param input       the raw input string
-   * @param target      the pointered context used for tag resolution
-   * @param tagResolver additional tag resolver
-   * @return the parsed component
-   */
-  @NotNull Component parse(@NotNull String input, @NotNull Pointered target, @NotNull TagResolver tagResolver);
-
-  /**
-   * Translates {@code input} and deserializes it into a {@link Component},
-   * applying zero or more {@code tagResolvers}.
-   *
-   * @param input        the raw input string
-   * @param tagResolvers additional tag resolvers
-   * @return the parsed component
-   */
-  @NotNull Component parse(@NotNull String input, TagResolver... tagResolvers);
-
-  /**
-   * Translates {@code input} and deserializes it into a {@link Component},
-   * resolving tags against {@code target} and applying zero or more
-   * {@code tagResolvers}.
-   *
-   * @param input        the raw input string
-   * @param target       the pointered context used for tag resolution
-   * @param tagResolvers additional tag resolvers
-   * @return the parsed component
-   */
-  @NotNull Component parse(@NotNull String input, @NotNull Pointered target, TagResolver... tagResolvers);
-
-  /**
-   * Translates {@code input} and deserializes it into a MiniMessage parse tree.
-   *
-   * @param input the raw input string
-   * @return the root node of the parse tree
-   */
-  Node.@NotNull Root parseToTree(@NotNull String input);
-
-  /**
-   * Translates {@code input} and deserializes it into a MiniMessage parse tree,
-   * resolving tags against the given {@code target}.
-   *
-   * @param input  the raw input string
-   * @param target the pointered context used for tag resolution
-   * @return the root node of the parse tree
-   */
-  Node.@NotNull Root parseToTree(@NotNull String input, @NotNull Pointered target);
-
-  /**
-   * Translates {@code input} and deserializes it into a MiniMessage parse tree,
-   * applying the given {@code tagResolver}.
-   *
-   * @param input       the raw input string
-   * @param tagResolver additional tag resolver
-   * @return the root node of the parse tree
-   */
-  Node.@NotNull Root parseToTree(@NotNull String input, @NotNull TagResolver tagResolver);
-
-  /**
-   * Translates {@code input} and deserializes it into a MiniMessage parse tree,
-   * resolving tags against {@code target} and applying {@code tagResolver}.
-   *
-   * @param input       the raw input string
-   * @param target      the pointered context used for tag resolution
-   * @param tagResolver additional tag resolver
-   * @return the root node of the parse tree
-   */
-  Node.@NotNull Root parseToTree(@NotNull String input, @NotNull Pointered target, @NotNull TagResolver tagResolver);
-
-  /**
-   * Translates {@code input} and deserializes it into a MiniMessage parse tree,
-   * applying zero or more {@code tagResolvers}.
-   *
-   * @param input        the raw input string
-   * @param tagResolvers additional tag resolvers
-   * @return the root node of the parse tree
-   */
-  Node.@NotNull Root parseToTree(@NotNull String input, TagResolver... tagResolvers);
-
-  /**
-   * Translates {@code input} and deserializes it into a MiniMessage parse tree,
-   * resolving tags against {@code target} and applying zero or more
-   * {@code tagResolvers}.
-   *
-   * @param input        the raw input string
-   * @param target       the pointered context used for tag resolution
-   * @param tagResolvers additional tag resolvers
-   * @return the root node of the parse tree
-   */
-  Node.@NotNull Root parseToTree(@NotNull String input, @NotNull Pointered target, TagResolver... tagResolvers);
 
   /**
    * Returns a new {@link Builder} pre-populated with this parser's translator chain
