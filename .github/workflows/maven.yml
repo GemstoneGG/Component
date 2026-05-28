@@ -34,8 +34,16 @@ jobs:
       - name: Build with Maven
         run: mvn --batch-mode --no-transfer-progress verify
 
-      - name: Deploy Snapshot to Maven Repository
+      - name: Resolve project version
         if: github.ref == env.DEPLOY_BRANCH
+        id: version
+        run: |
+          version=$(mvn --batch-mode --no-transfer-progress -q help:evaluate -Dexpression=project.version -DforceStdout)
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+          echo "Project version: $version"
+
+      - name: Deploy Snapshot to Maven Repository
+        if: github.ref == env.DEPLOY_BRANCH && endsWith(steps.version.outputs.version, '-SNAPSHOT')
         env:
           MAVEN_USERNAME: ${{ secrets.MAVEN_USERNAME }}
           MAVEN_PASSWORD: ${{ secrets.MAVEN_PASSWORD }}
