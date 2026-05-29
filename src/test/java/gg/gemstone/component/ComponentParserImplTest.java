@@ -189,6 +189,27 @@ class ComponentParserImplTest {
     void sevenDigitMojangUnboxedHexIsNotPartiallyMatched() {
       assertEquals("&#FFFFFFF", parser.translate("&#FFFFFFF"));
     }
+
+    @Test
+    void hexArgumentsInsideMiniMessageTagsAreNotConverted() {
+      // #RRGGBB is valid MiniMessage syntax inside a tag (e.g. gradient stops, <c:#...>).
+      // These hex codes must pass through untouched - only bare hex in plain text is converted.
+      String input = "<gradient:#FCD620:#F0A615:#FCD620><b>Heaven</b></gradient> "
+          + "<c:#90630C>x</c> <c:#F7C23D><b>y</b></c>";
+      assertEquals(input, parser.translate(input));
+    }
+
+    @Test
+    void reportedMiniMessageStringIsLeftIntact() {
+      // Regression: every #RRGGBB here sits inside a MiniMessage tag, so the full chain must
+      // be a no-op rather than rewriting the hex args and corrupting the tags.
+      String input = "<gradient:#FCD620:#F0A615:#FCD620><b>HᴇᴀᴠᴇɴCᴜʙᴇ</b></gradient>"
+          + " <c:#90630C>❭</c> <c:#F7C23D><b>Sᴜʀᴠɪᴇ</b> ᐠ1</c>"
+          + "                    <c:#D69F06><b>ѕᴇᴍɪ-ʀᴘ</b></c><newline>"
+          + "<c:#E64545><b>➥</b></c> <c:#EF8888>Nouvelle version en préparation !</c>"
+          + "                <c:#D69F06>v2...</c>";
+      assertEquals(input, parser.translate(input));
+    }
   }
 
   @Nested
@@ -293,8 +314,8 @@ class ComponentParserImplTest {
           MiniMessage.miniMessage()
       );
 
-      // <&#FFFFFF> and &#FFFFFF are excluded by the negative lookbehind for & and <;
-      // only the bare #FFFFFF is matched
+      // &#FFFFFF is excluded by the negative lookbehind for &, and <&#FFFFFF> is skipped as a
+      // tag span; only the bare #FFFFFF is matched
       String input = "<&#FFFFFF> &#FFFFFF #FFFFFF";
       assertEquals("<&#FFFFFF> &#FFFFFF <#FFFFFF>", parser.translate(input));
     }
