@@ -78,6 +78,44 @@ class UnboxedHexPatternTranslatorTest {
   }
 
   @Nested
+  class InsideTags {
+
+    @Test
+    void shouldNotConvertHexArgumentInTag() {
+      // #90630C is a tag argument, not a bare hex code - it must be left untouched.
+      assertEquals("<c:#90630C>", translator.translate("<c:#90630C>"));
+    }
+
+    @Test
+    void shouldNotConvertHexInGradientTag() {
+      assertEquals("<gradient:#FCD620:#F0A615:#FCD620>",
+          translator.translate("<gradient:#FCD620:#F0A615:#FCD620>"));
+    }
+
+    @Test
+    void shouldConvertOutsideTagButNotInside() {
+      assertEquals("<#FFFFFF> <c:#90630C>",
+          translator.translate("#FFFFFF <c:#90630C>"));
+    }
+
+    @Test
+    void shouldNotEscapeHexInsideTag() {
+      assertEquals("<c:#90630C>", translator.escape("<c:#90630C>"));
+    }
+
+    @Test
+    void shouldNotStripHexInsideTag() {
+      assertEquals("<c:#90630C>", translator.strip("<c:#90630C>"));
+    }
+
+    @Test
+    void shouldLeaveUnterminatedTagAsText() {
+      // A '<' with no matching '>' is not a tag span, so the bare hex after it still converts.
+      assertEquals("<c:<#90630C>", translator.translate("<c:#90630C"));
+    }
+  }
+
+  @Nested
   class Escape {
 
     @Test

@@ -17,6 +17,8 @@
 
 package gg.gemstone.component.translator;
 
+import static gg.gemstone.component.translator.MiniMessageTags.findTagEnd;
+
 import java.util.ArrayDeque;
 import java.util.Deque;
 import java.util.Map;
@@ -296,29 +298,5 @@ class LegacyFormattingCodeTranslator implements MiniMessageTranslator {
       output.append("</").append(legacyStack.pop()).append('>');
     }
     return 0;
-  }
-
-  private int findTagEnd(String input, int start) {
-    char quoteChar = 0;
-
-    for (int i = start + 1; i < input.length(); i++) {
-      char c = input.charAt(i);
-
-      if (quoteChar != 0) {
-        // Inside a quoted string - only look for the matching closing quote.
-        if (c == quoteChar) {
-          quoteChar = 0;
-        }
-      } else if (c == '\'' || c == '"') {
-        quoteChar = c;
-      } else if (c == '>') {
-        return i;
-      } else if (c == '<' && i != start) {
-        // Unquoted nested '<' with no prior '>' - not a valid tag, bail out.
-        return -1;
-      }
-    }
-
-    return -1;
   }
 }

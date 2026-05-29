@@ -18,15 +18,19 @@
 package gg.gemstone.component.translator;
 
 import java.util.regex.Pattern;
-import org.jetbrains.annotations.NotNull;
 
 /**
  * Translates Mojang-style <em>boxed</em> hex color codes into MiniMessage hex tags.
  *
  * <p>The pattern {@code <&#RRGGBB>} is replaced with {@code <#RRGGBB>}. Only exactly
  * six hex digits are matched; seven-or-more digit sequences are left untouched.
+ *
+ * <p>Unlike the other hex translators this one matches across the whole string rather than only
+ * outside tag spans: its pattern deliberately targets a {@code <...>} construct, which would
+ * otherwise be skipped as a tag span. This is safe because {@code <&#RRGGBB>} is never valid
+ * MiniMessage syntax.
  */
-class MojangBoxedHexPatternTranslator implements MiniMessageTranslator {
+class MojangBoxedHexPatternTranslator extends RegexMiniMessageTranslator {
 
   /**
    * Matches Mojang-style boxed hex codes (e.g. {@code <&#FFFFFF>}).
@@ -48,20 +52,13 @@ class MojangBoxedHexPatternTranslator implements MiniMessageTranslator {
    * Use {@link MiniMessageTranslators#MOJANG_BOXED_HEX}.
    */
   MojangBoxedHexPatternTranslator() {
+    super(BOXED_MOJANG_PATTERN, BOXED_HEX_REPLACEMENT, BOXED_HEX_ESCAPE_REPLACEMENT);
   }
 
   @Override
-  public @NotNull String translate(final @NotNull String input) {
-    return BOXED_MOJANG_PATTERN.matcher(input).replaceAll(BOXED_HEX_REPLACEMENT);
-  }
-
-  @Override
-  public @NotNull String escape(final @NotNull String input) {
-    return BOXED_MOJANG_PATTERN.matcher(input).replaceAll(BOXED_HEX_ESCAPE_REPLACEMENT);
-  }
-
-  @Override
-  public @NotNull String strip(final @NotNull String input) {
-    return BOXED_MOJANG_PATTERN.matcher(input).replaceAll("");
+  String replace(String input, String replacement) {
+    // The pattern targets a `<...>` construct, so it must run over the whole string; the
+    // default tag-aware matching would skip `<&#RRGGBB>` as a tag span.
+    return replaceWholeString(input, replacement);
   }
 }

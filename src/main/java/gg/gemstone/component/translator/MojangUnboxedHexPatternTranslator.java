@@ -18,22 +18,24 @@
 package gg.gemstone.component.translator;
 
 import java.util.regex.Pattern;
-import org.jetbrains.annotations.NotNull;
 
 /**
  * Translates Mojang-style <em>unboxed</em> hex color codes into MiniMessage hex tags.
  *
- * <p>The pattern {@code &#RRGGBB} is replaced with {@code <#RRGGBB>}. A negative lookbehind
- * for {@code <} ensures that already-boxed {@code <&#RRGGBB>} sequences are not matched here
- * (those are handled by {@link MojangBoxedHexPatternTranslator}). Only exactly six hex digits
- * are matched; seven-or-more digit sequences are left untouched.
+ * <p>The pattern {@code &#RRGGBB} is replaced with {@code <#RRGGBB>}. Matching happens only outside
+ * MiniMessage tag spans (see {@link RegexMiniMessageTranslator}), so an already-boxed
+ * {@code <&#RRGGBB>} sequence is skipped as a tag span (those are handled by
+ * {@link MojangBoxedHexPatternTranslator}). Only exactly six hex digits are matched;
+ * seven-or-more digit sequences are left untouched.
  */
-class MojangUnboxedHexPatternTranslator implements MiniMessageTranslator {
+class MojangUnboxedHexPatternTranslator extends RegexMiniMessageTranslator {
 
   /**
-   * Matches Mojang-style unboxed hex codes (e.g. {@code &#FFFFFF}).
+   * Matches Mojang-style unboxed hex codes (e.g. {@code &#FFFFFF}). Boxed {@code <&#FFFFFF>}
+   * sequences are skipped as tag spans by the tag-aware matching in
+   * {@link RegexMiniMessageTranslator}.
    */
-  private static final Pattern UNBOXED_MOJANG_PATTERN = Pattern.compile("(?<!<)&#([A-Fa-f0-9]{6})(?![A-Fa-f0-9])");
+  private static final Pattern UNBOXED_MOJANG_PATTERN = Pattern.compile("&#([A-Fa-f0-9]{6})(?![A-Fa-f0-9])");
 
   /**
    * MiniMessage-style boxed hex code replacement, where {@code $1} is substituted with a 6-digit hex string (e.g. {@code <#FFFFFF>}).
@@ -50,20 +52,6 @@ class MojangUnboxedHexPatternTranslator implements MiniMessageTranslator {
    * Use {@link MiniMessageTranslators#MOJANG_UNBOXED_HEX}.
    */
   MojangUnboxedHexPatternTranslator() {
-  }
-
-  @Override
-  public @NotNull String translate(final @NotNull String input) {
-    return UNBOXED_MOJANG_PATTERN.matcher(input).replaceAll(BOXED_HEX_REPLACEMENT);
-  }
-
-  @Override
-  public @NotNull String escape(final @NotNull String input) {
-    return UNBOXED_MOJANG_PATTERN.matcher(input).replaceAll(UNBOXED_HEX_ESCAPE_REPLACEMENT);
-  }
-
-  @Override
-  public @NotNull String strip(final @NotNull String input) {
-    return UNBOXED_MOJANG_PATTERN.matcher(input).replaceAll("");
+    super(UNBOXED_MOJANG_PATTERN, BOXED_HEX_REPLACEMENT, UNBOXED_HEX_ESCAPE_REPLACEMENT);
   }
 }

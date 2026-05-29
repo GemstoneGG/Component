@@ -18,26 +18,27 @@
 package gg.gemstone.component.translator;
 
 import java.util.regex.Pattern;
-import org.jetbrains.annotations.NotNull;
 
 /**
  * Translates bare unboxed hex color codes into MiniMessage hex tags.
  *
- * <p>The pattern {@code #RRGGBB} is replaced with {@code <#RRGGBB>}. Negative lookbehinds for
- * {@code <} and {@code &} prevent double-conversion of sequences already handled by
- * {@link MojangBoxedHexPatternTranslator} ({@code <&#RRGGBB>}) or
- * {@link MojangUnboxedHexPatternTranslator} ({@code &#RRGGBB}). Only exactly six hex digits are
+ * <p>The pattern {@code #RRGGBB} is replaced with {@code <#RRGGBB>}. Matching happens only outside
+ * MiniMessage tag spans (see {@link RegexMiniMessageTranslator}), so hex codes that appear inside a
+ * tag - whether already-boxed ({@code <#RRGGBB>}) or as a tag argument
+ * ({@code <gradient:#FCD620:#F0A615>}, {@code <c:#90630C>}) - are left untouched. Negative
+ * lookbehinds for {@code &} and {@code \} additionally skip Mojang-style {@code &#RRGGBB} and
+ * backslash-escaped {@code \#RRGGBB} sequences in plain text. Only exactly six hex digits are
  * matched; seven-or-more digit sequences are left untouched.
  */
-class UnboxedHexPatternTranslator implements MiniMessageTranslator {
+class UnboxedHexPatternTranslator extends RegexMiniMessageTranslator {
 
   /**
-   * Matches unboxed hex codes (e.g. {@code #FFFFFF}), excluding those already boxed in
-   * MiniMessage format (e.g. {@code <#FFFFFF>}), preceded by {@code &} (Mojang-style,
-   * e.g. {@code &#FFFFFF}), or preceded by a backslash (escape marker, e.g. {@code \#FFFFFF})
-   * via a negative lookbehind for {@code <}, {@code &}, and {@code \}.
+   * Matches unboxed hex codes (e.g. {@code #FFFFFF}) in plain text, excluding those preceded by
+   * {@code &} (Mojang-style, e.g. {@code &#FFFFFF}) or by a backslash (escape marker, e.g.
+   * {@code \#FFFFFF}) via a negative lookbehind. Codes inside tag spans (e.g. {@code <#FFFFFF>})
+   * are skipped by the tag-aware matching in {@link RegexMiniMessageTranslator}.
    */
-  private static final Pattern UNBOXED_HEX_PATTERN = Pattern.compile("(?<![<&\\\\])#([A-Fa-f0-9]{6})(?![A-Fa-f0-9])");
+  private static final Pattern UNBOXED_HEX_PATTERN = Pattern.compile("(?<![&\\\\])#([A-Fa-f0-9]{6})(?![A-Fa-f0-9])");
 
   /**
    * MiniMessage-style boxed hex code replacement, where {@code $1} is substituted with a 6-digit hex string (e.g. {@code <#FFFFFF>}).
@@ -54,20 +55,6 @@ class UnboxedHexPatternTranslator implements MiniMessageTranslator {
    * Use {@link MiniMessageTranslators#UNBOXED_HEX}.
    */
   UnboxedHexPatternTranslator() {
-  }
-
-  @Override
-  public @NotNull String translate(final @NotNull String input) {
-    return UNBOXED_HEX_PATTERN.matcher(input).replaceAll(BOXED_HEX_REPLACEMENT);
-  }
-
-  @Override
-  public @NotNull String escape(final @NotNull String input) {
-    return UNBOXED_HEX_PATTERN.matcher(input).replaceAll(UNBOXED_HEX_ESCAPE_REPLACEMENT);
-  }
-
-  @Override
-  public @NotNull String strip(final @NotNull String input) {
-    return UNBOXED_HEX_PATTERN.matcher(input).replaceAll("");
+    super(UNBOXED_HEX_PATTERN, BOXED_HEX_REPLACEMENT, UNBOXED_HEX_ESCAPE_REPLACEMENT);
   }
 }
